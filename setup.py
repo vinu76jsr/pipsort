@@ -1,6 +1,7 @@
 """ Setup script for the pipsort application.
 
 """
+import os
 from distutils import log
 from functools import partial
 from os.path import join
@@ -19,20 +20,29 @@ _ETC_FILES = {
     "etc": ("config.yml",),
 }
 
+description = "Get pip search results sorted by version"
+long_description = description
+if os.path.exists('README.rst'):
+    long_description = open('README.rst').read()
+
+
 
 _CONFIG = {
     "name": "pipsort",
     "author": "Vaibhav Mishra",
     "author_email": "vinu76jsr@gmail.com",
-    "url": "",
     "package_dir": {"": "lib"},
     "packages": find_packages("lib"),
+    "url": 'http://github.com/vinu76jsr/pipsort',
+    "description": description,
+    "long_description": long_description,
     "entry_points": {
         "console_scripts": ("pipsort = pipsort.cli:main",),
         # "gui_scripts": ("gui = pipsort.gui:main",)
     },
     "data_files": [(root, map(partial(join, root), paths)) for (root, paths)
                    in _ETC_FILES.iteritems()],
+    'install_requires':["pyquery>=1.2.13", "lxml>=3.6.0", "PyYAML>=3.11"]
 }
 
 

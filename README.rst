@@ -7,7 +7,7 @@ This is the pipsort application - sorts pip search results based on version numb
 Minimum Requirements
 ====================
 
-* Python 2.7
+* Python 2.7 - doesn't work with Py3
 
 
 Optional Requirements
@@ -29,12 +29,22 @@ Install for the current user:
 
     $ python setup.py install --user
 
+alternatively
+
+.. code-block::
+
+    $ pip install pipsort
+
 
 Run the application:
 
 ..  code-block::
 
     $ python -m pipsort --help
+
+alternatively
+
+    $ pipsort <searchterm>
 
 
 Run the test suite:

@@ -13,36 +13,34 @@ from sys import executable
 import pytest
 from pipsort.cli import *  # test __all__
 
-
-@pytest.fixture(params=("cmd1", "cmd2"))
-def command(request):
-    """ Return the command to run.
-
-    """
-    return request.param
-
-
-def test_main(command):
+def test_main():
     """ Test the main() function.
 
     """
     # Call with the --help option as a basic sanity check.
     with pytest.raises(SystemExit) as exinfo:
-        main(("{:s}".format(command), "--help"))
+        main(("", "--help"))
     print "help..."*100
     assert 0 == exinfo.value.code
     return
 
 
-def test_script(command):
+def test_script():
     """ Test command line execution.
 
     """
     # Call with the --help option as a basic sanity check.
-    cmdl = "{:s} -m pipsort.cli {:s} --help".format(executable, command)
+    cmdl = "{:s} -m pipsort.cli --help".format(executable)
     assert 0 == call(cmdl.split())
     return
 
+def test_script_without_search_term():
+    cmdl = "{:s} -m pipsort.cli".format(executable)
+    assert 0 != call(cmdl.split())
+    return
+
+def test_script_with_search_term():
+    cmdl = "{:s} -m pipsort.cli".format(executable)
 
 # Make the script executable.
 

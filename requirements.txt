@@ -3,3 +3,5 @@
 ##    pip install --requirement=requirements.txt
 ##
 PyYAML>=3.11
+pyquery>=1.2.13
+lxml>=3.6.0

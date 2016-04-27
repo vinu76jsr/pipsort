@@ -1,7 +1,7 @@
 """ Implementation of the command line interface.
 
 """
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 from argparse import ArgumentParser
 
@@ -10,8 +10,9 @@ import subprocess
 from . import __version__
 from .core import config
 from .core import logger
-from .command import cmd1
-from .command import cmd2
+import requests
+from pyquery import PyQuery as pq
+from lxml import etree
 
 
 __all__ = "main",
@@ -31,17 +32,29 @@ def _cmdline(argv=None):
             help="logger warning level [WARNING]")
     parser.add_argument("search_term", type=str,
                         help="Search term for PyPI")
-    # subparsers = parser.add_subparsers(title="commands")
-    # search_term = subparsers.add_parser("search_term")
-    # search_term.set_defaults(command=search_term)
-    # cmd2_parser = subparsers.add_parser("cmd2")
-    # cmd2_parser.set_defaults(command=cmd2)
     args = parser.parse_args(argv)
     if not args.config:
-        # Don't specify this as an argument default or else it will always be
-        # included in the list.
         args.config = ["etc/config.yml"]
     return args
+
+
+def sort_function(a):
+    version_a = filter( lambda x: x in '0123456789.', a )
+    return version_a
+
+
+def get_package_list(search_term):
+    url = "https://pypi.python.org/pypi?%%3Aaction=search&term=%s"
+    r = requests.get(url % search_term)
+    htmls = r.content
+    htmls = htmls.replace("&nbsp", '')
+    d = pq(etree.fromstring(htmls))
+    od = d(".odd")
+    ev = d(".even")
+    odd_list = [odd.getchildren()[0].getchildren()[0].text.split(";") for odd in od]
+    even_list = [even.getchildren()[0].getchildren()[0].text.split(";") for even in ev]
+    odd_list.extend(even_list)
+    return odd_list
 
 
 def main(argv=None):
@@ -51,17 +64,17 @@ def main(argv=None):
 
     """
     args = _cmdline(argv)
-    # logger.start(args.warn)
-    # logger.info("starting execution")
     config.load(args.config)
-    # print args
-    import ipdb; ipdb.set_trace()
-    # args.command(**vars(args))
-    # logger.info("successful completion")
-    results = subprocess.check_output(['pip', 'search', args.search_term]).split('\n')
-    results = sorted([result for result in results if "(" in result and ")" in result], key=lambda t: t[t.find("("):t.find(")")], reverse=True)
-    print '\n'.join(results)
-
+    results = get_package_list(args.search_term)
+    results = sorted(results, key=lambda a: sort_function(a[1]), reverse=True)
+    results_normalized = list()
+    last_result = None
+    for result in results:
+        if result[0] == last_result:
+            continue
+        results_normalized.append(result)
+        last_result = result[0]
+    print('\n'.join(["%s    -     %s" % (_[0], _[1]) for _ in results_normalized]))
     return 0
  
 
