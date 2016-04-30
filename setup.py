@@ -17,7 +17,7 @@ _ETC_FILES = {
     # Files are keyed by their project directory location and will be installed
     # into the same location under the Python installation path, e.g. the
     # application virtualenv environment.
-    "etc": ("config.yml",),
+    # "etc": ("config.yml",),
 }
 
 description = "Get pip search results sorted by version"
